@@ -6,8 +6,7 @@ import time
 # from model import inference
 from .inference_model import inference
 from .segmentor import segment
-import asyncio
-import winsdk.windows.devices.enumeration as windows_devices
+
 
 PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -49,19 +48,9 @@ def get_metadata():
     # return "/position/positions.png"
 
 def liveView():
-    CAMERA_NAME = "C270 HD WEBCAM"
-    async def get_camera_info():
-        return await windows_devices.DeviceInformation.find_all_async(4)
-    connected_cameras = asyncio.run(get_camera_info())
-    names = [camera.name for camera in connected_cameras]
-    if CAMERA_NAME not in names:
-        print("Camera not found")
-    else:
-        camera_index = names.index(CAMERA_NAME)
-        print(camera_index)
     #key = cv2. waitKey(1)
     key = cv2.waitKey(1)
-    webcam = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+    webcam = cv2.VideoCapture(0)
     cv2.waitKey(3000)
     ret,frame =webcam.read()
     cv2image= cv2.cvtColor(webcam.read()[1],cv2.COLOR_BGR2RGB)

@@ -10,7 +10,7 @@ import cv2
 import imutils
 import pandas as pd
 from datetime import datetime
-import winsound
+
 PATH = os.path.dirname(os.path.realpath(__file__))
 
 WIDTH = 1455
@@ -271,7 +271,7 @@ class TimerPage(tk.Frame):
         if self.remaining <= 0:
             self.label_time.configure(text="time's\nup!")
             cap,live_image = hic.liveView()
-            winsound.Beep(2500, 2000)
+            #winsound.Beep(2500, 2000)
             time.sleep(4)
             isDone = hic.cam(cap)
             print(isDone)
