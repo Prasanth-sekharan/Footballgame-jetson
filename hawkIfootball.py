@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import tkinter as tk
+from tkinter import ttk
 from tkinter import font as tkfont
 from PIL import ImageTk, Image
 import customtkinter
@@ -10,12 +11,13 @@ import cv2
 import imutils
 import pandas as pd
 from datetime import datetime
-
+import time
 PATH = os.path.dirname(os.path.realpath(__file__))
 
 WIDTH = 1455
 HEIGHT = 700
 player = {}
+
 
 class MainFrame(tk.Tk):
     """
@@ -35,9 +37,9 @@ class MainFrame(tk.Tk):
         WIDTH = screen_width
         HEIGHT = screen_height
 
-
-        self.geometry(screenStr)
-        #self.attributes('-fullscreen',True)
+ 
+        #self.geometry(screenStr)
+        self.attributes('-fullscreen',True)
 
         self.titlefont = tkfont.Font(family='Verdana',size=12,
                         weight="bold",slant='roman')
@@ -53,15 +55,9 @@ class MainFrame(tk.Tk):
         self.listing = {}
         self.pages = HomePage
 
-        # GameStartPage, TimerPage, LiveViewPage, ScorePage,
-        # for p in (HomePage, PlayerInfo, GameStartPage, TimerPage, LiveViewPage, ScorePage, LeaderBoardPage):
-        #     page_name = p.__name__
-        #     frame = p(parent = container, controller=self)
-        #     frame.grid(row=0,column=0,sticky='nesw')
-        #     self.listing[page_name] = frame
-
         self.up_frame(HomePage)
-        
+        #self.bind("<*>",lambda event: self.up_frame(GameCheck))
+
     def up_frame(self,p):
         page_name = p.__name__
         frame = p(parent = self.container, controller=self)
@@ -69,9 +65,16 @@ class MainFrame(tk.Tk):
         page = frame
         page.tkraise()
 
+    # Bind the 'end' key to the quit method
+        self.bind('<End>', self.quit)
+
+    def quit(self, event):
+        self.destroy()
+
 class HomePage(tk.Frame):
     def __init__(self, parent,controller):
         tk.Frame.__init__(self,parent)
+        
         self.controller = controller
         self.id = controller.id  
         # self.place(x=50,y=80)   
@@ -80,43 +83,32 @@ class HomePage(tk.Frame):
 
         self.image_label = tk.Label(master=self, image=self.bg_image)
         self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-
-        bou = customtkinter.CTkButton(master=self, text="START GAME",
-                                                corner_radius=6, command=self.button_event,width=200,bg_color='#ffc000',text_font=('moonhouse',24,'bold'),fg_color='#ffc000',hover_color='#ca9a08')
-        # bou.pack(padx=100)
-        bou.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.button_img = tk.PhotoImage(file= PATH + "/button.png")
+        self.button = tk.Button(master=self, text="START ",command=lambda: controller.up_frame(PlayerInfo), image=self.button_img)
         
+        self.button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        controller.bind('<Return>', lambda event: controller.up_frame(PlayerInfo))
+        print(self)
 
     def button_event(self):
-        print("submit pressed")  
-        self.controller.up_frame(PlayerInfo)    
-        # self.controller.up_frame(LeaderBoardPage)    
-
     
+        print("submit pressed") 
+        self.controller.up_frame(PlayerInfo)
+      
+
 
 class PlayerInfo(tk.Frame):
     def __init__(self, parent,controller):
         tk.Frame.__init__(self,parent)
         self.controller = controller
         self.id = "player"
-        # self.p = PlayerInfo
-        
-        # self.controller.pages = PlayerInfo
-
+       
         image = Image.open(PATH + "/PlayerInfoBg.jpg").resize((WIDTH, HEIGHT))
         self.bg_image = ImageTk.PhotoImage(image)
 
         self.image_label = tk.Label(master=self, image=self.bg_image)
         self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        # self.config(background='#000140')
-        # self.grid(row=0,column=0)
-        # label_msg = tk.canvas.create_text((410, 120), text="Earth Hour Countdown:", font="MSGothic 50 bold", fill="#652828")
         
-        # self.label_1 = customtkinter.CTkLabel(master=self, width=200, height=50,
-        #                                       fg_color=('#001256'), 
-        #                                       text_font=('Berlin Sans FB Demi',60,'bold'),
-        #                                       text="Player Info",text_color='white')
-        # self.label_1.place(relx=0.5, rely=0.2, anchor=tk.CENTER)
 
         self.label_name = customtkinter.CTkLabel(master=self, width=150,
                                               fg_color=('#001256'), corner_radius=6,bg_color='#001256',
@@ -164,11 +156,12 @@ class PlayerInfo(tk.Frame):
         self.entry_5 = customtkinter.CTkEntry(master=self, corner_radius=6, width=400, placeholder_text="Organization",fg_color='#001256',text_color='white')
         self.entry_5.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
 
-        self.button_2 = customtkinter.CTkButton(master=self, text="SUBMIT",
-                                                corner_radius=6, command=self.button_event, width=200,height=10,bg_color='#ffc000',text_font=('moonhouse',24,'bold'),fg_color='#ffc000',hover_color='#ca9a08')
-        self.button_2.place(relx=0.566, rely=0.7, anchor=tk.CENTER)
-        # bou = tk.Button(self, text="to page main",command=lambda:controller.up_frame("HomePage"))
-        # bou.pack()
+        self.submit_button_img = tk.PhotoImage(file= PATH + "/submit.png")
+        self.submit_button = tk.Button(master=self, text="SUBMIT",command=self.button_event, image=self.submit_button_img)
+        self.submit_button.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
+        controller.bind('<Right>', lambda event: self.button_event())
+        #bou = tk.Button(self, text="to page main",command=lambda:controller.up_frame(HomePage))
+        #bou.pack()
 
     def button_event(self):
         print("submit pressed")
@@ -183,7 +176,36 @@ class PlayerInfo(tk.Frame):
         player['mobile'] = mobile
         player['organization'] = organization
         print(player)
-        self.controller.up_frame(GameStartPage)
+        self.controller.up_frame(Rules)
+        
+    
+    #new page for rules
+class Rules(tk.Frame):
+    def __init__(self, parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+        self.id = controller.id
+        image = Image.open(PATH + "/Rules.jpg").resize((WIDTH, HEIGHT))
+        self.bg_image = ImageTk.PhotoImage(image)
+
+        self.image_label = tk.Label(master=self, image=self.bg_image)
+        self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        
+        self.remaining = 0
+        self.countdown(4000)
+        #time.sleep(10)
+    def countdown(self, remaining = None):
+        if remaining is not None:
+            self.remaining = remaining
+        print("inside timer")
+        if self.remaining <= 0:
+            
+            self.controller.up_frame(GameStartPage)
+        else:
+            # #self.label_time.configure(text="%d" % self.remaining)
+            self.remaining = self.remaining - 1
+            self.after(1, self.countdown)
+
 
 class GameStartPage(tk.Frame):
     def __init__(self, parent,controller):
@@ -213,15 +235,6 @@ class GameStartPage(tk.Frame):
         self.label_time.place(relx=0.778, rely=0.55)
         # time.sleep(1)
 
-        # t1=10
-        # t=0
-        # while t < 10:
-        #     t = t + 1
-        #     t1 = t1 - 1
-        #     time.sleep(1)
-        #     print(seconds,t1)
-        #     seconds.set("{0}".format(t1))
-
         self.remaining = 0
         self.countdown(10)
         # time.sleep(1)
@@ -233,13 +246,40 @@ class GameStartPage(tk.Frame):
 
         if self.remaining <= 0:
             self.label_time.configure(text="time's\nup!")
-            self.controller.up_frame(TimerPage)
+            self.controller.up_frame(TimeStart)
         else:
             self.label_time.configure(text="%d" % self.remaining)
             self.remaining = self.remaining - 1
             self.after(1000, self.countdown)
     
-    
+
+      #for time starts now
+
+class TimeStart(tk.Frame):
+    def __init__(self, parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+        self.id = controller.id
+        image = Image.open(PATH + "/TimeStart.jpg").resize((WIDTH, HEIGHT))
+        self.bg_image = ImageTk.PhotoImage(image)
+
+        self.image_label = tk.Label(master=self, image=self.bg_image)
+        self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        
+        self.remaining = 0
+        self.countdown(2000)
+        #time.sleep(10)
+    def countdown(self, remaining = None):
+        if remaining is not None:
+            self.remaining = remaining
+        print("inside timer")
+        if self.remaining <= 0:
+            
+            self.controller.up_frame(TimerPage)
+        else:
+            # #self.label_time.configure(text="%d" % self.remaining)
+            self.remaining = self.remaining - 1
+            self.after(1, self.countdown)   
     
 
 class TimerPage(tk.Frame):
@@ -270,19 +310,47 @@ class TimerPage(tk.Frame):
         print("inside timer")
         if self.remaining <= 0:
             self.label_time.configure(text="time's\nup!")
-            cap,live_image = hic.liveView()
+            
+            self.controller.up_frame(TimeUp)
+        else:
+            self.label_time.configure(text="%d" % self.remaining)
+            self.remaining = self.remaining - 1
+            self.after(1000, self.countdown)
+            
+        #TimesUp
+
+class TimeUp(tk.Frame):
+    def __init__(self, parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+        self.id = controller.id
+        image = Image.open(PATH + "/TimesUp.jpg").resize((WIDTH, HEIGHT))
+        self.bg_image = ImageTk.PhotoImage(image)
+
+        self.image_label = tk.Label(master=self, image=self.bg_image)
+        self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        
+        self.remaining = 0
+        self.countdown(1500)
+        #time.sleep(10)
+    def countdown(self, remaining = None):
+        if remaining is not None:
+            self.remaining = remaining
+        print("inside timer")
+        if self.remaining <= 0:
             #winsound.Beep(2500, 2000)
-            time.sleep(4)
+            time.sleep(2)
+            cap,live_image = hic.liveView()
             isDone = hic.cam(cap)
             print(isDone)
             cap.release()
             if isDone:
                 self.controller.up_frame(LiveViewPage)
         else:
-            self.label_time.configure(text="%d" % self.remaining)
+            # #self.label_time.configure(text="%d" % self.remaining)
             self.remaining = self.remaining - 1
-            self.after(1000, self.countdown)
-            
+            self.after(1, self.countdown)
+
 
 class LiveViewPage(tk.Frame):
     def __init__(self, parent,controller):
@@ -320,14 +388,11 @@ class LiveViewPage(tk.Frame):
             # self.label_time.configure(text="%d" % self.remaining)
             self.remaining = self.remaining - 1
             self.after(1000, self.countdown)
-        
-
-   
-
-
-
 
 class ScorePage(tk.Frame):
+
+        
+
     def __init__(self, parent,controller):
         tk.Frame.__init__(self,parent)
         self.controller = controller
@@ -338,6 +403,8 @@ class ScorePage(tk.Frame):
         res = hic.process()
         player['score'] = res
         player['date'] = datetime.now()
+
+        
 
         self.image_label = tk.Label(master=self, image=self.bg_image)
         self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
@@ -353,10 +420,11 @@ class ScorePage(tk.Frame):
         ##player to csv
         # time.sleep(3)
         self.remaining = 0
-
+        #controller.bind('<*>', lambda event: self.controller.up_frame(GameCheck))
         self.countdown(5)
-        # time.sleep(1)
+        
 
+ 
         
     def countdown(self, remaining = None):
         if remaining is not None:
@@ -376,6 +444,57 @@ class ScorePage(tk.Frame):
 
 
         print(1)
+        
+    
+
+class GameCheck(tk.Frame):
+    def __init__(self, parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+        self.id = controller.id
+        image = Image.open(PATH + "/Compare.jpg").resize((WIDTH, HEIGHT))
+        self.bg_image = ImageTk.PhotoImage(image)
+
+        self.image_label = tk.Label(master=self, image=self.bg_image)
+        self.image_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        print("inside Livepage")
+        
+        self.image_cam = tk.Label(master=self)
+        self.image_cam.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        
+        live_image = Image.open(PATH + "/FootballMatch/FootballMatch/resultImages/recent_picture.jpg")
+        self.live_image = ImageTk.PhotoImage(live_image)
+        self.live_label = tk.Label(master=self, image=self.live_image)
+        self.live_label.place(relx=0.3, rely=0.6, anchor=tk.CENTER)
+        self.remaining = 0
+
+        
+        hic.get_metadata()
+        meta_image = Image.open(PATH + "/FootballMatch/FootballMatch/position/positions.png").resize((WIDTH, HEIGHT))
+        resized_image= meta_image.resize((640,480), Image.ANTIALIAS)
+        self.pos_image = ImageTk.PhotoImage(resized_image)
+        self.pos_image_label = tk.Label(master=self, image=self.pos_image)
+        self.pos_image_label.place(relx=0.7, rely=0.6, anchor=tk.CENTER)
+        self.remaining = 0
+        self.remaining = 0
+
+        self.countdown(5)
+        # time.sleep(1)
+
+        
+    def countdown(self, remaining = None):
+        if remaining is not None:
+            self.remaining = remaining
+
+        if self.remaining <= 0:
+            # self.label_time.configure(text="time's\nup!")
+            self.controller.up_frame(LeaderBoardPage)
+        else:
+            # self.label_time.configure(text="%d" % self.remaining)
+            self.remaining = self.remaining - 1
+            self.after(2000, self.countdown)
+
+
 
 class LeaderBoardPage(tk.Frame):
     
@@ -503,6 +622,7 @@ class LeaderBoardPage(tk.Frame):
                                               text=score8,text_color='black')
         self.score_label8.place(relx=0.65, rely=0.89)
 
+        
         self.remaining = 0
         self.countdown(10)
 
@@ -530,9 +650,11 @@ class LeaderBoardPage(tk.Frame):
         #                                         corner_radius=6, command=self.button_event, width=200,height=10,bg_color='#ffc000',text_font=('moonhouse',24,'bold'),fg_color='#ffc000',hover_color='#ca9a08')
         # self.button_2.place(relx=0.566, rely=0.7, anchor=tk.CENTER)
 
+#root.mainloop() 
+
 if __name__ == "__main__":
 
     app = MainFrame()
 
     app.mainloop()        
-    
+   
