@@ -57,6 +57,7 @@ class MainFrame(tk.Tk):
 
         self.up_frame(HomePage)
         #self.bind("<*>",lambda event: self.up_frame(GameCheck))
+        self.bind("<$>",lambda event: self.up_frame(Calibration))
 
     def up_frame(self,p):
         page_name = p.__name__
@@ -66,7 +67,7 @@ class MainFrame(tk.Tk):
         page.tkraise()
 
     # Bind the 'end' key to the quit method
-        self.bind('<End>', self.quit)
+        self.bind('<Escape>', self.quit)
 
     def quit(self, event):
         self.destroy()
@@ -644,13 +645,68 @@ class LeaderBoardPage(tk.Frame):
             self.remaining = self.remaining - 1
             self.after(1000, self.countdown)
 
+class Calibration(tk.Frame):
+    
+    def __init__(self, parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+        self.id = controller.id
+
+        # Initialize the webcam
+        cap = cv2.VideoCapture(0)
+
+    # Set the frame width and height
+        cap.set(3, 640)
+        cap.set(4, 480)
+
+    # Loop until the 'q' key is pressed
+        while True:
+    # Read a frame from the webcam
+            ret, tk.frame = cap.read()
+
+        # Draw a crosswire on the frame
+            cv2.line(tk.frame, (0, 26), (640, 24), (0, 0, 255), 2)
+            cv2.line(tk.frame, (0, 196), (640, 198), (0, 0, 255), 2)
+            cv2.line(tk.frame, (0, 444), (640, 449), (0, 0, 255), 2)
+
+            cv2.line(tk.frame, (90, 89), (24, 332), (0, 0, 255), 2)
+            cv2.line(tk.frame, (557, 88), (610, 335), (0, 0, 255), 2)
+
+        # Display the frame
+            cv2.imshow('Crosswire', tk.frame)
+        # Break the loop if the 'q' key is pressed
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+            
+                break
+
+        # Release the webcam
+        #cap.release()
+
+    # Close all windows
+        #self.bind("<q>", self.quit)
+        cv2.destroyAllWindows()
+        self.remaining = 0
+        self.countdown(1)
+
+    def countdown(self, remaining=None):
+        if remaining is not None:
+            self.remaining = remaining
+
+        if self.remaining <= 0:
+                # self.label_time.configure(text="time's\nup!")
+            player = {}
+                # self.controller.up_frame(HomePage) 1
+            # app.mainloop()
+
+            self.controller.up_frame(HomePage)
 
 
-        # self.button_2 = customtkinter.CTkButton(master=self, text="RESTART",
-        #                                         corner_radius=6, command=self.button_event, width=200,height=10,bg_color='#ffc000',text_font=('moonhouse',24,'bold'),fg_color='#ffc000',hover_color='#ca9a08')
-        # self.button_2.place(relx=0.566, rely=0.7, anchor=tk.CENTER)
+        else:
+                # self.label_time.configure(text="%d" % self.remaining)
+            self.remaining = self.remaining - 1
+            self.after(1, self.countdown)
 
-#root.mainloop() 
+      
 
 if __name__ == "__main__":
 
