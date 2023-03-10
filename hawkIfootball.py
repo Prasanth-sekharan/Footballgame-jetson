@@ -57,7 +57,7 @@ class MainFrame(tk.Tk):
 
         self.up_frame(HomePage)
         #self.bind("<*>",lambda event: self.up_frame(GameCheck))
-        self.bind("<$>",lambda event: self.up_frame(Calibration))
+        self.bind("<KP_Divide>",lambda event: self.up_frame(Calibration))
 
     def up_frame(self,p):
         page_name = p.__name__
