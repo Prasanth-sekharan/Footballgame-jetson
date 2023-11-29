@@ -1,0 +1,41 @@
+pipeline:
+  name: football_pipeline
+  identifier: football_pipeline
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: harnessgitconnector
+        repoName: Footballgame-jetson
+        build: <+input>
+  stages:
+    - stage:
+        name: football_stage
+        identifier: football_stage
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Docker
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    connectorRef: docker
+                    repo: harness
+                    tags:
+                      - v1
+        delegateSelectors:
+          - helm-delegate
+        when:
+          pipelineStatus: Success
