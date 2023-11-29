@@ -35,3 +35,5 @@ pipeline:
                     repo: harness
                     tags:
                       - v1
+        delegateSelectors:
+          - helm-delegate
