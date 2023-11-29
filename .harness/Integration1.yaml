@@ -32,6 +32,6 @@ pipeline:
                   identifier: BuildAndPushDockerRegistry_1
                   spec:
                     connectorRef: account.harnessImage
-                    repo: football_jetson
+                    repo: harness
                     tags:
                       - v1.1
